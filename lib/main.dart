@@ -78,10 +78,34 @@ class _HomePageState extends State<HomePage> {
       if (Platform.isAndroid) {
             try {
 
+              var status = await Permission.camera.status;
+              if (status.isUndetermined) {
+                // We didn't ask for permission yet.
+                bool didAuth;
+                    try {
+                      if (await Permission.camera.request().isGranted) {
 
-//              returns a boolean 'true' if authenticated
-              return  await auth.authenticateWithBiometrics(
-                  localizedReason: 'Please authenticate');
+                        print("Permission granted");
+                        print("available permissions after camera granted :\n ${await auth.getAvailableBiometrics()}");
+
+                        // Either the permission was already granted before or the user just granted it.
+                         didAuth = await auth.authenticateWithBiometrics(
+                            localizedReason: 'Please authenticate');
+                      }else{
+                         didAuth = await auth.authenticateWithBiometrics(
+                            localizedReason: 'Please authenticate');
+                      }
+                    } catch(err){
+                       didAuth = await auth.authenticateWithBiometrics(
+                          localizedReason: 'Please authenticate');
+                    }
+
+                    return didAuth;
+              }
+
+
+
+
 
             } on PlatformException catch(err){
               throw err;
